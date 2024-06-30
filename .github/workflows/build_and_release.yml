@@ -341,7 +341,7 @@ jobs:
       with:
         version: '6.6.1'
         modules: 'all'
-        cache: true
+        cache: false
 
     - name: Build
       working-directory: ${{env.GITHUB_WORKSPACE}}
