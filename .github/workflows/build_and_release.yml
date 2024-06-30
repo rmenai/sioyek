@@ -325,6 +325,7 @@ jobs:
       uses: jurplel/install-qt-action@v2
       with:
         version: '6.2.*'
+        cache: true
 
     - name: Build
       working-directory: ${{env.GITHUB_WORKSPACE}}
