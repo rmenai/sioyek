@@ -29,6 +29,7 @@
 #include <qnetworkrequest.h>
 #include <qnetworkreply.h>
 #include <qscreen.h>
+<<<<<<< HEAD
 #include <qjsonarray.h>
 #include <quuid.h>
 #include <qjsondocument.h>
@@ -38,6 +39,10 @@
 #include <QtCore/private/qandroidextras_p.h>
 #include <qjniobject.h>
 #endif
+=======
+#include <QKeyEvent>
+#include <QtGlobal>
+>>>>>>> main
 
 #include <mupdf/pdf.h>
 
@@ -4366,4 +4371,25 @@ bool is_platform_control_pressed(QKeyEvent* kevent){
 #else
         return (kevent->modifiers() & Qt::ControlModifier);
 #endif
+}
+
+bool should_trigger_delete(QKeyEvent *key_event) {
+    if (!key_event) {
+        return false;
+    }
+
+    // Check for the Delete key
+    if (key_event->key() == Qt::Key_Delete) {
+        return true;
+    }
+
+    // On macOS, treat the Backspace key as Delete as well
+#ifdef Q_OS_MAC
+    if (key_event->key() == Qt::Key_Backspace) {
+        return true;
+    }
+#endif
+
+    // For other platforms, Backspace does not trigger delete
+    return false;
 }

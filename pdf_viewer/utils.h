@@ -14,7 +14,12 @@
 #include <memory>
 #include <qcommandlineparser.h>
 
+<<<<<<< HEAD
 #include <qkeyevent.h>
+=======
+#include <QKeyEvent>
+
+>>>>>>> main
 #include <qstandarditemmodel.h>
 #include <qpoint.h>
 #include <qjsonarray.h>
@@ -208,6 +213,7 @@ void convert_color4(const float* in_color, int* out_color);
 QColor convert_float3_to_qcolor(const float* floats);
 QColor convert_float4_to_qcolor(const float* floats);
 std::string get_aplph_tag(int n, int max_n);
+<<<<<<< HEAD
 fz_document* open_document_with_file_name(fz_context* context, std::wstring file_name);
 
 QString get_list_item_stylesheet();
@@ -525,3 +531,7 @@ QString translate_key_mapping_to_macos(QString mapping);
 
 bool is_platform_meta_pressed(QKeyEvent* kevent);
 bool is_platform_control_pressed(QKeyEvent* kevent);
+=======
+
+bool should_trigger_delete(QKeyEvent *key_event);
+>>>>>>> main

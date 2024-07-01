@@ -161,9 +161,145 @@ public:
     void handle_edit();
     QString get_selected_item();
 
+<<<<<<< HEAD
 
 #ifndef SIOYEK_QT6
     void keyReleaseEvent(QKeyEvent* event) override;
+=======
+		if (selected_index_list.size() > 0) {
+			QModelIndex selected_index = selected_index_list.at(0);
+			return selected_index;
+		}
+		return {};
+	}
+
+	virtual std::wstring get_selected_text() {
+		return L"";
+	}
+
+	bool eventFilter(QObject* obj, QEvent* event) override {
+		if (obj == line_edit) {
+#ifdef SIOYEK_QT6
+			if (event->type() == QEvent::KeyRelease) {
+				QKeyEvent* key_event = static_cast<QKeyEvent*>(event);
+				if (should_trigger_delete(key_event)) {
+					handle_delete();
+				}
+			}
+#endif
+			if (event->type() == QEvent::KeyPress) {
+				QKeyEvent* key_event = static_cast<QKeyEvent*>(event);
+				bool is_control_pressed = key_event->modifiers().testFlag(Qt::ControlModifier) || key_event->modifiers().testFlag(Qt::MetaModifier);
+				bool is_alt_pressed = key_event->modifiers().testFlag(Qt::AltModifier);
+
+				if (key_event->key() == Qt::Key_Down ||
+					key_event->key() == Qt::Key_Up ||
+					key_event->key() == Qt::Key_Left ||
+					key_event->key() == Qt::Key_Right
+					) {
+#ifdef SIOYEK_QT6
+					QKeyEvent* newEvent = key_event->clone();
+#else
+					QKeyEvent* newEvent = new QKeyEvent(*key_event);
+#endif
+					QCoreApplication::postEvent(get_view(), newEvent);
+					//QCoreApplication::postEvent(tree_view, key_event);
+					return true;
+				}
+				if (key_event->key() == Qt::Key_Tab) {
+					QKeyEvent* new_key_event = new QKeyEvent(key_event->type(), Qt::Key_Down, key_event->modifiers());
+					QCoreApplication::postEvent(get_view(), new_key_event);
+					return true;
+				}
+				if (EMACS_MODE) {
+					if (((key_event->key() == Qt::Key_V)) && is_control_pressed) {
+						QKeyEvent* new_key_event = new QKeyEvent(key_event->type(), Qt::Key_Up, key_event->modifiers());
+						QCoreApplication::postEvent(get_view(), new_key_event);
+						return true;
+					}
+					if (((key_event->key() == Qt::Key_V)) && is_alt_pressed) {
+						QKeyEvent* new_key_event = new QKeyEvent(key_event->type(), Qt::Key_Down, key_event->modifiers());
+						QCoreApplication::postEvent(get_view(), new_key_event);
+						return true;
+					}
+				}
+				if (((key_event->key() == Qt::Key_N) || (key_event->key() == Qt::Key_J)) && is_control_pressed) {
+					QKeyEvent* new_key_event = new QKeyEvent(key_event->type(), Qt::Key_Down, key_event->modifiers());
+					QCoreApplication::postEvent(get_view(), new_key_event);
+					return true;
+				}
+				if (((key_event->key() == Qt::Key_P) || (key_event->key() == Qt::Key_K)) && is_control_pressed) {
+					QKeyEvent* new_key_event = new QKeyEvent(key_event->type(), Qt::Key_Up, key_event->modifiers());
+					QCoreApplication::postEvent(get_view(), new_key_event);
+					return true;
+				}
+				if ((key_event->key() == Qt::Key_J) && is_alt_pressed) {
+					QKeyEvent* new_key_event = new QKeyEvent(key_event->type(), Qt::Key_End, Qt::KeyboardModifier::NoModifier);
+					QCoreApplication::postEvent(get_view(), new_key_event);
+					return true;
+				}
+				if ((key_event->key() == Qt::Key_K) && is_alt_pressed) {
+					QKeyEvent* new_key_event = new QKeyEvent(key_event->type(), Qt::Key_Home, Qt::KeyboardModifier::NoModifier);
+					QCoreApplication::postEvent(get_view(), new_key_event);
+					return true;
+				}
+				if ((key_event->key() == Qt::Key_PageDown)) {
+					QKeyEvent* new_key_event = new QKeyEvent(key_event->type(), Qt::Key_PageDown, key_event->modifiers());
+					QCoreApplication::postEvent(get_view(), new_key_event);
+					return true;
+				}
+				if ((key_event->key() == Qt::Key_PageUp)) {
+					QKeyEvent* new_key_event = new QKeyEvent(key_event->type(), Qt::Key_PageUp, key_event->modifiers());
+					QCoreApplication::postEvent(get_view(), new_key_event);
+					return true;
+				}
+				if (key_event->key() == Qt::Key_Backtab) {
+					QKeyEvent* new_key_event = new QKeyEvent(key_event->type(), Qt::Key_Up, key_event->modifiers());
+					QCoreApplication::postEvent(get_view(), new_key_event);
+					return true;
+				}
+				if (((key_event->key() == Qt::Key_C) && is_control_pressed)) {
+					std::wstring text = get_selected_text();
+					if (text.size() > 0) {
+						copy_to_clipboard(text);
+					}
+					return true;
+				}
+				if (key_event->key() == Qt::Key_Return || key_event->key() == Qt::Key_Enter) {
+					std::optional<QModelIndex> selected_index = get_selected_index();
+					if (selected_index) {
+						on_select(selected_index.value());
+					}
+					else {
+						on_return_no_select(line_edit->text());
+					}
+					return true;
+				}
+
+			}
+		}
+		return false;
+	}
+
+	void handle_delete() {
+		QModelIndexList selected_index_list = get_view()->selectionModel()->selectedIndexes();
+		if (selected_index_list.size() > 0) {
+			QModelIndex selected_index = selected_index_list.at(0);
+			if (proxy_model->hasIndex(selected_index.row(), selected_index.column())) {
+				QModelIndex source_index = proxy_model->mapToSource(selected_index);
+				on_delete(source_index, selected_index);
+			}
+		}
+	}
+
+#ifndef SIOYEK_QT6
+	void keyReleaseEvent(QKeyEvent* event) override {
+		if (should_trigger_delete(event)) {
+			handle_delete();
+		}
+		QWidget::keyReleaseEvent(event);
+	}
+>>>>>>> main
 #endif
 
     virtual void on_config_file_changed();
